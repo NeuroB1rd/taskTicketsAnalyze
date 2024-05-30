@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,12 +16,16 @@ public class MinFlightAnalyzeHandler implements TicketHandler {
     private Map<String, Duration> minFlightTimes;
 
     public MinFlightAnalyzeHandler(String origin, String destination) {
-        this.origin = origin;
-        this.destination = destination;
+        this.origin = Objects.requireNonNull(origin, "Origin не может быть null!");
+        this.destination = Objects.requireNonNull(destination, "Destination не может быть null!");
     }
 
     @Override
     public void handleRequest(Stream<Ticket> stream) {
+        if (stream == null) {
+            System.out.println("Поток null");
+            return;
+        }
         analyzeMinFlightTimes(stream);
         printMinFlightTimes();
     }

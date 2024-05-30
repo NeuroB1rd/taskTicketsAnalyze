@@ -1,6 +1,7 @@
 package com.example;
 
 import org.example.Ticket;
+import org.example.handler.CostAnalyzeHandler;
 import org.example.handler.MinFlightAnalyzeHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,8 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MinFlightAnalyzeHandlerTest {
 
@@ -36,5 +36,11 @@ public class MinFlightAnalyzeHandlerTest {
         assertEquals(2, minFlightTimes.size());
         assertEquals(Duration.ofHours(5).plusMinutes(50), minFlightTimes.get("TK"));
         assertEquals(Duration.ofHours(6).plusMinutes(30), minFlightTimes.get("S7"));
+    }
+
+    @Test
+    public void testHandleRequest_NullInput() {
+        MinFlightAnalyzeHandler handler = new MinFlightAnalyzeHandler("VVO", "TLV");
+        assertDoesNotThrow(() -> handler.handleRequest(null));
     }
 }

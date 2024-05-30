@@ -3,6 +3,7 @@ package org.example.handler;
 import org.example.Ticket;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,12 +13,16 @@ public class CostAnalyzeHandler implements TicketHandler {
     private double priceMedianDifference;
 
     public CostAnalyzeHandler(String origin, String destination) {
-        this.origin = origin;
-        this.destination = destination;
+        this.origin = Objects.requireNonNull(origin, "Origin не может быть null!");
+        this.destination = Objects.requireNonNull(destination, "Destination не может быть null!");
     }
 
     @Override
     public void handleRequest(Stream<Ticket> stream) {
+        if (stream == null) {
+            System.out.println("Поток null");
+            return;
+        }
         analyzePriceAndMedian(stream);
         printPriceMedianDifference();
     }

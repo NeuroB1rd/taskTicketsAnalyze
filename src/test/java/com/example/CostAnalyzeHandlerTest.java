@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CostAnalyzeHandlerTest {
@@ -34,5 +35,10 @@ public class CostAnalyzeHandlerTest {
 
         double priceMedianDifference = handler.getPriceMedianDifference();
         assertEquals(300, priceMedianDifference);
+    }
+    @Test
+    public void testHandleRequest_NullInput() {
+        CostAnalyzeHandler handler = new CostAnalyzeHandler("VVO", "TLV");
+        assertDoesNotThrow(() -> handler.handleRequest(null));
     }
 }
