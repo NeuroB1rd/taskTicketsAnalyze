@@ -7,6 +7,7 @@ import org.example.dto.TicketsDTO;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConverterHandler extends Handler {
     @Override
@@ -16,7 +17,8 @@ public class ConverterHandler extends Handler {
             List<TicketDTO> ticketDTOList = ticketsDTO.getTickets();
             List<Ticket> ticketList = ticketDTOList.stream()
                     .map(this::convertToTicket)
-                    .toList();
+                    .collect(Collectors.toList());
+
             if (nextHandler != null) {
                 nextHandler.handleRequest(ticketList);
             }

@@ -2,13 +2,15 @@ package org.example.handler;
 
 public class HandlerBuilder {
     public Handler build(String origin, String destination) {
-        Handler jsonReaderHandler = new JsonReaderHandler();
+        Handler minFlightTimeAnalyzer = new MinFlightAnalyzeHandler(origin, destination);
+        Handler priceMedianAnalyzer = new CostAnalyzeHandler(origin, destination);
         Handler converterHandler = new ConverterHandler();
-        Handler analyzerHandler = new AnalyzerHandler(origin, destination);
+        Handler jsonReaderHandler = new JsonReaderHandler();
 
         jsonReaderHandler.setNextHandler(converterHandler);
-        converterHandler.setNextHandler(analyzerHandler);
+        converterHandler.setNextHandler(minFlightTimeAnalyzer);
+        minFlightTimeAnalyzer.setNextHandler(priceMedianAnalyzer);
 
-        return jsonReaderHandler;
+        return jsonReaderHandler; // Возвращаем первый обработчик в цепочке
     }
 }

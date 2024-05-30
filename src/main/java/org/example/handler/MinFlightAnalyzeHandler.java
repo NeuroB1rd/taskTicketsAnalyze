@@ -6,11 +6,11 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AnalyzerHandler extends Handler {
+public class MinFlightAnalyzeHandler extends Handler {
     private final String origin;
     private final String destination;
 
-    public AnalyzerHandler(String origin, String destination) {
+    public MinFlightAnalyzeHandler(String origin, String destination) {
         this.origin = origin;
         this.destination = destination;
     }
@@ -21,16 +21,16 @@ public class AnalyzerHandler extends Handler {
             List<?> list = (List<?>) request;
             if (!list.isEmpty() && list.get(0) instanceof Ticket) {
                 List<Ticket> tickets = (List<Ticket>) list;
-                analyzeTickets(tickets);
+                analyzeMinFlightTimes(tickets);
             } else {
-                System.out.println("Неверный тип данных для анализа.");
+                System.out.println("Неверный тип данных для анализа минимального времени перелета.");
             }
         } else {
-            System.out.println("Неверный тип запроса для анализа данных.");
+            System.out.println("Неверный тип запроса для анализа минимального времени перелета.");
         }
     }
 
-    private void analyzeTickets(List<Ticket> tickets) {
+    private void analyzeMinFlightTimes(List<Ticket> tickets) {
         List<Ticket> filteredTickets = tickets.stream()
                 .filter(ticket -> origin.equals(ticket.getOrigin()) && destination.equals(ticket.getDestination()))
                 .collect(Collectors.toList());
@@ -53,31 +53,6 @@ public class AnalyzerHandler extends Handler {
         System.out.println("Минимальное время полета между " + origin + " и " + destination + " для каждого авиаперевозчика:");
         for (Map.Entry<String, Duration> entry : minFlightTimes.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue().toHours() + " часов " + (entry.getValue().toMinutes() % 60) + " минут");
-        }
-
-        List<Integer> prices = filteredTickets.stream()
-                .map(Ticket::getPrice)
-                .sorted()
-                .collect(Collectors.toList());
-
-        double averagePrice = prices.stream()
-                .mapToInt(Integer::intValue)
-                .average()
-                .orElse(0);
-
-        double medianPrice = calculateMedian(prices);
-
-        System.out.println("Разница между средней ценой и медианой для полетов между " + origin + " и " + destination + ": " + (averagePrice - medianPrice));
-    }
-
-    private double calculateMedian(List<Integer> prices) {
-        int size = prices.size();
-        if (size == 0) {
-            return 0;
-        } else if (size % 2 == 1) {
-            return prices.get(size / 2);
-        } else {
-            return (prices.get(size / 2 - 1) + prices.get(size / 2)) / 2.0;
         }
     }
 }
