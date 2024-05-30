@@ -3,12 +3,16 @@ package org.example.handler;
 import org.example.Ticket;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class MinFlightAnalyzeHandler extends Handler {
+public class MinFlightAnalyzeHandler implements TicketHandler {
     private final String origin;
     private final String destination;
+    private Map<String, Duration> minFlightTimes;
 
     public MinFlightAnalyzeHandler(String origin, String destination) {
         this.origin = origin;
@@ -16,43 +20,40 @@ public class MinFlightAnalyzeHandler extends Handler {
     }
 
     @Override
-    public void handleRequest(Object request) {
-        if (request instanceof List<?>) {
-            List<?> list = (List<?>) request;
-            if (!list.isEmpty() && list.get(0) instanceof Ticket) {
-                List<Ticket> tickets = (List<Ticket>) list;
-                analyzeMinFlightTimes(tickets);
-            } else {
-                System.out.println("Неверный тип данных для анализа минимального времени перелета.");
-            }
-        } else {
-            System.out.println("Неверный тип запроса для анализа минимального времени перелета.");
-        }
+    public void handleRequest(Stream<Ticket> stream) {
+        analyzeMinFlightTimes(stream);
+        printMinFlightTimes();
     }
 
-    private void analyzeMinFlightTimes(List<Ticket> tickets) {
-        List<Ticket> filteredTickets = tickets.stream()
+    private void analyzeMinFlightTimes(Stream<Ticket> ticketStream) {
+        List<Ticket> filteredTickets = ticketStream
                 .filter(ticket -> origin.equals(ticket.getOrigin()) && destination.equals(ticket.getDestination()))
                 .collect(Collectors.toList());
 
         Map<String, List<Ticket>> ticketsByCarrier = filteredTickets.stream()
                 .collect(Collectors.groupingBy(Ticket::getCarrier));
 
-        Map<String, Duration> minFlightTimes = new HashMap<>();
-        for (Map.Entry<String, List<Ticket>> entry : ticketsByCarrier.entrySet()) {
-            String carrier = entry.getKey();
-            List<Ticket> carrierTickets = entry.getValue();
+        minFlightTimes = ticketsByCarrier.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(ticket -> Duration.between(ticket.getDepartureDateTime(), ticket.getArrivalDateTime()))
+                                .min(Comparator.naturalOrder())
+                                .orElse(Duration.ZERO)
+                ));
+    }
 
-            Optional<Duration> minDuration = carrierTickets.stream()
-                    .map(ticket -> Duration.between(ticket.getDepartureDateTime(), ticket.getArrivalDateTime()))
-                    .min(Comparator.naturalOrder());
-
-            minDuration.ifPresent(duration -> minFlightTimes.put(carrier, duration));
-        }
-
+    private void printMinFlightTimes() {
         System.out.println("Минимальное время полета между " + origin + " и " + destination + " для каждого авиаперевозчика:");
         for (Map.Entry<String, Duration> entry : minFlightTimes.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue().toHours() + " часов " + (entry.getValue().toMinutes() % 60) + " минут");
+            Duration duration = entry.getValue();
+            long hours = duration.toHours();
+            long minutes = duration.toMinutes() % 60;
+            System.out.println(entry.getKey() + ": " + hours + " часов " + minutes + " минут");
         }
+    }
+
+    public Map<String, Duration> getMinFlightTimes() {
+        return minFlightTimes;
     }
 }

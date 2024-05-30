@@ -2,13 +2,14 @@ package org.example.handler;
 
 import org.example.Ticket;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class CostAnalyzeHandler extends Handler {
-
+public class CostAnalyzeHandler implements TicketHandler {
     private final String origin;
     private final String destination;
+    private double priceMedianDifference;
 
     public CostAnalyzeHandler(String origin, String destination) {
         this.origin = origin;
@@ -16,26 +17,14 @@ public class CostAnalyzeHandler extends Handler {
     }
 
     @Override
-    public void handleRequest(Object request) {
-        if (request instanceof List<?>) {
-            List<?> list = (List<?>) request;
-            if (!list.isEmpty() && list.get(0) instanceof Ticket) {
-                List<Ticket> tickets = (List<Ticket>) list;
-                analyzePriceAndMedian(tickets);
-            } else {
-                System.out.println("Неверный тип данных для анализа разницы цены.");
-            }
-        } else {
-            System.out.println("Неверный тип запроса для анализа разницы цены.");
-        }
+    public void handleRequest(Stream<Ticket> stream) {
+        analyzePriceAndMedian(stream);
+        printPriceMedianDifference();
     }
 
-    private void analyzePriceAndMedian(List<Ticket> tickets) {
-        List<Ticket> filteredTickets = tickets.stream()
+    private void analyzePriceAndMedian(Stream<Ticket> ticketStream) {
+        List<Integer> prices = ticketStream
                 .filter(ticket -> origin.equals(ticket.getOrigin()) && destination.equals(ticket.getDestination()))
-                .collect(Collectors.toList());
-
-        List<Integer> prices = filteredTickets.stream()
                 .map(Ticket::getPrice)
                 .sorted()
                 .collect(Collectors.toList());
@@ -47,7 +36,11 @@ public class CostAnalyzeHandler extends Handler {
 
         double medianPrice = calculateMedian(prices);
 
-        System.out.println("Разница между средней ценой и медианой для полетов между " + origin + " и " + destination + ": " + (averagePrice - medianPrice));
+        priceMedianDifference = averagePrice - medianPrice;
+    }
+
+    private void printPriceMedianDifference() {
+        System.out.println("Разница между средней ценой и медианой для полетов между " + origin + " и " + destination + ": " + priceMedianDifference);
     }
 
     private double calculateMedian(List<Integer> prices) {
@@ -59,5 +52,9 @@ public class CostAnalyzeHandler extends Handler {
         } else {
             return (prices.get(size / 2 - 1) + prices.get(size / 2)) / 2.0;
         }
+    }
+
+    public double getPriceMedianDifference() {
+        return priceMedianDifference;
     }
 }
