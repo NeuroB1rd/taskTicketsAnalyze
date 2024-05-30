@@ -1,4 +1,8 @@
-package org.example;
+package org.example.handler;
+
+import org.example.Ticket;
+import org.example.dto.TicketDTO;
+import org.example.dto.TicketsDTO;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

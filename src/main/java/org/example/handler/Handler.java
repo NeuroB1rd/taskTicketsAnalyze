@@ -1,4 +1,4 @@
-package org.example;
+package org.example.handler;
 
 public abstract class Handler {
     protected Handler nextHandler;

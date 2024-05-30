@@ -1,4 +1,6 @@
-package org.example;
+package org.example.handler;
+
+import org.example.Ticket;
 
 import java.time.Duration;
 import java.util.*;

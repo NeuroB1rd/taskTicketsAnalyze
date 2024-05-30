@@ -1,6 +1,8 @@
-package org.example;
+package org.example.handler;
 
 import com.google.gson.Gson;
+import org.example.dto.TicketsDTO;
+
 import java.io.FileReader;
 
 public class JsonReaderHandler extends Handler {
